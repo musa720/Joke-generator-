@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Malook.ai - 50 Joke Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f2f4f8;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 1.5rem;
+      width: 100%;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    button {
+      margin: 2rem 0;
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    #jokes {
+      max-width: 700px;
+      width: 90%;
+      margin-bottom: 2rem;
+    }
+
+    .joke {
+      background-color: white;
+      margin: 10px 0;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+
+    .loading {
+      font-style: italic;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <header>🤣 Malook.ai — 50 Joke Generator</header>
+
+  <button onclick="generateJokes()">Generate 50 Jokes</button>
+
+  <div id="jokes">Click the button to get 50 hilarious AI jokes!</div>
+
+  <script>
+    async function generateJokes() {
+      const jokesDiv = document.getElementById("jokes");
+      jokesDiv.innerHTML = "<p class='loading'>Generating 50 jokes… please wait!</p>";
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer YOUR_OPENAI_API_KEY" // Replace this!
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "user",
+                content: "Give me 50 short, one-line jokes in a numbered list."
+              }
+            ],
+            temperature: 0.8
+          })
+        });
+
+        const data = await response.json();
+        const content = data.choices[0].message.content;
+        const jokes = content.split(/\d+\.\s/).filter(j => j.trim() !== "");
+
+        jokesDiv.innerHTML = "";
+        jokes.forEach((joke, index) => {
+          const jokeEl = document.createElement("div");
+          jokeEl.className = "joke";
+          jokeEl.innerText = `${index + 1}. ${joke.trim()}`;
+          jokesDiv.appendChild(jokeEl);
+        });
+
+      } catch (err) {
+        jokesDiv.innerHTML = "<p class='loading'>❌ Error loading jokes. Try again later.</p>";
+        console.error(err);
+      }
+    }
+  </script>
+
+</body>
+</html>
